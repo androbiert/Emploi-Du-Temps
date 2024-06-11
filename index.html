@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,17 +18,15 @@
         }
         .timetable-container {
             width: 80%;
-            scrollbar-width: auto ;
             margin: 20px auto;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: scroll;
+            overflow: hidden;
         }
         h1 {
             text-align: center;
             padding: 20px;
-            width: 100%;
             background-color: #4CAF50;
             color: #fff;
             margin: 0;
@@ -61,22 +60,15 @@
         <thead>
             <tr>
                 <th>Jour</th>
-                <th>8:30 - 10:00</th>
-                <th>10:10 - 11:40</th>
-                <th>11:45 - 1:15</th>
-                <th>1:20 - 2:50</th>
-                <th>3:00 - 4:30</th>
+                <th>Heure 1</th>
+                <th>Heure 2</th>
+                <th>Heure 3</th>
+                <th>Heure 4</th>
+                <th>Heure 5</th>
             </tr>
         </thead>
         <tbody>
-            {% for day, sessions in timetable.items %}
-                <tr>
-                    <td class="day-header">{{ day }}</td>
-                    {% for session in sessions %}
-                        <td>{{ session }}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
+<tr><td class="day-header">Sunday</td><td>Empty</td><td>Empty</td><td>Empty</td><td>Empty</td><td>Empty</td></tr><tr><td class="day-header">Monday</td><td>Empty</td><td>Entrepreneuriat_Teacher4_lecture</td><td>Sécurité_Teacher1_td</td><td>Sécurité_Teacher1_lecture</td><td>Recherche opérationnelle 2_Teacher5_td</td></tr><tr><td class="day-header">Tuesday</td><td>Recherche opérationnelle 2_Teacher5_lecture</td><td>Méthodes formelles_Teacher2_td</td><td>Méthodes formelles_Teacher2_lecture</td></tr><tr><td class="day-header">Wednesday</td><td>Distributed Architecture & Intensive Computing_Teacher6_td</td><td>Distributed Architecture & Intensive Computing_Teacher6_lecture</td><td>Analyse numérique_Teacher3_td</td><td>Analyse numérique_Teacher3_lecture</td><td>Réseaux 2_Teacher9_tp</td></tr><tr><td class="day-header">Thursday</td><td>Réseaux 2_Teacher8_td</td><td>Réseaux 2_Teacher7_lecture</td><td>Artificial Intelligence_Teacher13_tp</td><td>Artificial Intelligence_Teacher12_td</td><td>Artificial Intelligence_Teacher11_lecture</td></tr>
         </tbody>
     </table>
 </div>
