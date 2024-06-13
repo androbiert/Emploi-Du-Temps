@@ -1,168 +1,155 @@
-# from constraint import Problem, AllDifferentConstraint
-# from django.shortcuts import render
-# import logging
-# import random
-# def check_succession(solution):
-#     day_sessions = {}
-#     for session, (day, slot) in solution.items():
-#         day_sessions.setdefault(day, []).append(session)
-
-#     for day, sessions in day_sessions.items():
-#         if len(sessions) > 1:
-#             sorted_sessions = sorted(sessions, key=lambda session: solution[session][1])
-#             for i in range(len(sorted_sessions) - 1):
-#                 current_session = sorted_sessions[i]
-#                 next_session = sorted_sessions[i + 1]
-#                 if solution[current_session][1] == solution[next_session][1] - 1:
-#                     return False
-#     return True
-
-# def has_conflicts(current_solution):
-#     for variable, value in current_solution.items():
-#         for var, val in current_solution.items():
-#             if variable != var and value == val:
-#                 return True
-#     return False
-# def backtrack(problem, current_solution, all_solutions):
-#     if not problem:  # Termination condition: if the problem is empty
-#         # Check if the current solution satisfies the succession constraint
-#         if check_succession(current_solution):
-#             all_solutions.append(current_solution.copy())
-#         return
-#     print(problem)
-#     # Choose a variable from the problem dictionary
-#     variable = next(iter(problem))
-#     domain = problem[variable]
-
-#     # Iterate over the domain of the chosen variable
-#     for value in domain:
-#         current_solution[variable] = value
-
-#         # Create a reduced problem by removing the chosen variable
-#         reduced_problem = {key: val for key, val in problem.items() if key != variable}
-
-#         # Check if there are any conflicts in the reduced problem
-#         if not has_conflicts(current_solution):
-#             # Recursive call to solve the reduced problem
-#             backtrack(reduced_problem, current_solution, all_solutions)
-
-#         # Backtrack: remove the variable from the current solution
-#         current_solution.pop(variable)
-
-# def home(request):
-#     # Define the problem
-#     problem = {}
-
-#     # Define the days and time slots
-#     days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']
-#     time_slots = {'Sunday': 5, 'Monday': 5, 'Tuesday': 3, 'Wednesday': 5, 'Thursday': 5}
-
-#     # Define the courses and teachers
-#     courses = [
-#         ('Sécurité', ['Teacher1_lecture', 'Teacher1_td']),
-#         ('Méthodes formelles', ['Teacher2_lecture', 'Teacher2_td']),
-#         ('Analyse numérique', ['Teacher3_lecture', 'Teacher3_td']),
-#         ('Entrepreneuriat', ['Teacher4_lecture']),
-#         ('Recherche opérationnelle 2', ['Teacher5_lecture', 'Teacher5_td']),
-#         ('Distributed Architecture & Intensive Computing', ['Teacher6_lecture', 'Teacher6_td']),
-#         ('Réseaux 2', ['Teacher7_lecture', 'Teacher8_td', 'Teacher9_tp']),
-#         ('Artificial Intelligence', ['Teacher11_lecture', 'Teacher12_td', 'Teacher13_tp'])
-#     ]
-
-#     # Shuffle the courses
-#     random.shuffle(courses)
-
-#     # Define the variables and their domains
-#     for course, sessions in courses:
-#         for session in sessions:
-#             problem[f"{course}_{session}"] = [(day, slot) for day in days for slot in range(time_slots[day])]
-
-#     # Backtrack to find all solutions
-#     all_solutions = []
-#     backtrack(problem, {}, all_solutions)
-
-#     # Choose a random valid solution
-#     if all_solutions:
-#         solution = random.choice(all_solutions)
-#     else:
-#         solution = None
-
-#     # Prepare data for HTML
-#     timetable = {day: ['Empty' for _ in range(time_slots[day])] for day in days}
-
-#     if solution:
-#         for session, (day, slot) in solution.items():
-#             course, _ = session.rsplit('_', 1)
-#             timetable[day][slot] = course
-
-#     context = {'timetable': timetable}
-#     return render(request, 'Emploi_du_temps/index.html', context)
-
-
-
-from constraint import Problem, AllDifferentConstraint
 from django.shortcuts import render
-import random
+from collections import defaultdict
+import re
+from constraint import Problem, AllDifferentConstraint
 
-def home(request):
-    # Define the problem
+def create_schedule():
+    days_per_group = 5
+    slots_per_day = 5
+    num_groups = 3
+    courses = ['AI,Dr Lekehali', 'DA/CI,Dr Djennadi', 'Reseaux,Dr Zenadji', 'Security,Dr Djebari',
+               'Méthodes formelles,Dr Zedek', 'Recherche operationel,Dr Isaadi', 'Analyse numérique,Dr Alkama']
+    lecture_courses = [course + '_Cour' for course in courses]
+    td_courses = [course + '_TD' for course in courses]
+    tp_courses = ['AI_TP,Pr Abbas,', 'Reseaux_TP,Pr Zaidi']
+    free_values = ['FREE1', 'FREE2', 'FREE3', 'FREE4', 'FREE5', 'FREE6', 'FREE7', 'FREE8']
+    all_courses = td_courses + free_values + tp_courses + lecture_courses + ['Entreprenariat,Pr Kaci_Cour']
+
     problem = Problem()
+    for group in range(num_groups):
+        for day in range(days_per_group):
+            for slot in range(slots_per_day):
+                var = (group, day, slot)
+                problem.addVariable(var, all_courses)
 
-    # Define the days and time slots
-    days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']
-    time_slots = { 'Sunday': 5, 'Monday': 5, 'Tuesday': 3, 'Wednesday': 5, 'Thursday': 5 }
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((0, 2, 3),))
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((0, 2, 4),))
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((1, 2, 3),))
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((1, 2, 4),))
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((2, 2, 3),))
+    problem.addConstraint(lambda c: c.startswith('FREE'), ((2, 2, 4),))
 
-    # Define the courses and teachers
-    courses = [
-        ('Sécurité', ['Teacher1_lecture', 'Teacher1_td']),
-        ('Méthodes formelles', ['Teacher2_lecture', 'Teacher2_td']),
-        ('Analyse numérique', ['Teacher3_lecture', 'Teacher3_td']),
-        ('Entrepreneuriat', ['Teacher4_lecture']),
-        ('Recherche opérationnelle 2', ['Teacher5_lecture', 'Teacher5_td']),
-        ('Distributed Architecture & Intensive Computing', ['Teacher6_lecture', 'Teacher6_td']),
-        ('Réseaux 2', ['Teacher7_lecture', 'Teacher8_td', 'Teacher9_tp']),
-        ('Artificial Intelligence', ['Teacher11_lecture', 'Teacher12_td', 'Teacher13_tp'])
-    ]
+    def td_all_different_constraint(*args):
+        td_courses_in_slot = [val for val in args if '_TD' in val]
+        return len(td_courses_in_slot) == len(set(td_courses_in_slot))
 
-    # Shuffle the courses
-    random.shuffle(courses)
-    random.shuffle(x=[1,2,3,4])
-    
+    def lecture_same_constraint(*args):
+        lectures_in_slot = [val for val in args if '_Cour' in val]
+        return len(set(lectures_in_slot)) <= 1
 
-    # Define the variables and their domains
-    for course, sessions in courses:
-        for session in sessions:
-            # Add a variable for each session
-            problem.addVariable(session, [(day, slot) for day in days for slot in range(time_slots[day])])
+    for day in range(days_per_group):
+        for slot in range(slots_per_day):
+            vars_in_slot = [(group, day, slot) for group in range(num_groups)]
+            problem.addConstraint(lecture_same_constraint, vars_in_slot)
+            problem.addConstraint(td_all_different_constraint, vars_in_slot)
 
-    # Ensure all sessions of the same course do not overlap
-    all_sessions = [session for _, sessions in courses for session in sessions]
-    problem.addConstraint(AllDifferentConstraint(), all_sessions)
+    for group in range(num_groups):
+        group_constraints = [(group, day, slot) for slot in range(slots_per_day) for day in range(days_per_group)]
+        problem.addConstraint(AllDifferentConstraint(), group_constraints)
 
-    # Solve the problem to get the first solution
+    def max_three_successive_work_slots(*slots):
+        count = 0
+        for slot in slots:
+            if not slot.startswith('FREE'):
+                count += 1
+                if count > 3:
+                    return False
+            else:
+                count = 0
+        return True
+
+    for group in range(num_groups):
+        for day in range(days_per_group):
+            variables = [(group, day, slot) for slot in range(slots_per_day)]
+            problem.addConstraint(max_three_successive_work_slots, variables)
+
     solution = problem.getSolution()
+    return solution
 
-    # If a solution is found, add it to a list of solutions
-    solutions = [solution] if solution else []
+def organize_schedule(solution):
+    days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"]
+    group_schedules = defaultdict(dict)
 
-    # Try to find additional solutions
-    while True:
-        # Try to find another solution
-        solution = problem.getSolution()
-        if solution:
-            solutions.append(solution)
-        else:
-            break  # If no more solutions can be found, stop
+    if solution:
+        for (group, day, slot), course in solution.items():
+            day_name = days[day]
+            slot_number = slot + 1
+            if course.startswith('FREE'):
+                course_name = 'FREE'
+            else:
+                course_name = course
 
-    # Randomly select one solution from the list of solutions
-    selected_solution = random.choice(solutions) if solutions else None
+            if group == 0:
+                group_name = 'Group 1'
+            elif group == 1:
+                group_name = 'Group 2'
+            elif group == 2:
+                group_name = 'Group 3'
+            else:
+                group_name = f'Group {group + 1}'
 
-    # Prepare data for HTML
-    timetable = {day: ['Empty' for _ in range(time_slots[day])] for day in days}
+            if day_name not in group_schedules[group_name]:
+                group_schedules[group_name][day_name] = {}
 
-    if selected_solution:
-        for session, (day, slot) in selected_solution.items():
-            timetable[day][slot] = session
+            group_schedules[group_name][day_name][slot_number] = course_name
 
-    context = {'timetable': timetable}
+    return group_schedules
+
+def find_teachers_less_than_3_days(group_schedules):
+    teacher_days = defaultdict(set)
+    teacher_pattern = re.compile(r'(Pr|Dr)\s+([A-Za-z]+)_')
+
+    for group_name, schedules in group_schedules.items():
+        for day_name, day_schedule in schedules.items():
+            for slot_number, course_name in day_schedule.items():
+                match = teacher_pattern.search(course_name)
+                if match:
+                    teacher = match.group(2)
+                    teacher_days[teacher].add(day_name)
+
+    teachers_less_than_3_days = {
+        'count': 0,
+        'list': []
+    }
+
+    for teacher, days in teacher_days.items():
+        if len(days) < 3:
+            teachers_less_than_3_days['count'] += 1
+            teachers_less_than_3_days['list'].append(teacher)
+
+    return teachers_less_than_3_days
+
+
+def schedule_view(request):
+    solution = create_schedule()
+    group_schedules = organize_schedule(solution)
+
+    # Define the order of days (Sunday to Saturday)
+    days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    # Initialize dictionaries for each group
+    dict_grp_1 = {}
+    dict_grp_2 = {}
+    dict_grp_3 = {}
+
+    # Sort schedules by day and assign to respective dictionaries
+    for group_name, schedule in group_schedules.items():
+        sorted_schedule = {day: schedule[day] for day in days_order if day in schedule}
+        if group_name == 'Group 1':
+            dict_grp_1 = sorted_schedule
+        elif group_name == 'Group 2':
+            dict_grp_2 = sorted_schedule
+        elif group_name == 'Group 3':
+            dict_grp_3 = sorted_schedule
+
+    # Find teachers working less than 3 days
+    teachers_less_than_3_days = find_teachers_less_than_3_days(group_schedules)
+
+    context = {
+        'dict_grp_1': dict_grp_1,
+        'dict_grp_2': dict_grp_2,
+        'dict_grp_3': dict_grp_3,
+        'teachers_less_than_3_days': teachers_less_than_3_days,
+    }
+
     return render(request, 'Emploi_du_temps/index.html', context)

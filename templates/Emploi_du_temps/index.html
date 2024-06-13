@@ -2,84 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emploi du Temps</title>
+    <title>Group Schedules</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-        }
-        .timetable-container {
-            width: 80%;
-            scrollbar-width: auto ;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: scroll;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+            color: #333;
         }
         h1 {
             text-align: center;
-            padding: 20px;
-            width: 100%;
-            background-color: #4CAF50;
-            color: #fff;
-            margin: 0;
+            color: #1a73e8;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 40px;
+            color: #1a73e8;
+            font-size: 1.8em;
         }
         table {
-            width: 100%;
             border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            padding: 12px;
+            border: 1px solid #ddd;
+            padding: 10px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #f0f0f0;
+            color: #333;
+            font-size: 1.2em;
+            font-weight: 600;
         }
-        tr:hover {
-            background-color: #f5f5f5;
+        td {
+            background-color: #fcfcfc;
+            font-size: 1.1em;
+            font-weight: 400;
+            font-family: Georgia, serif;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            cursor: pointer;
         }
-        .day-header {
-            background-color: #4CAF50;
-            color: white;
+        td:hover{
+            background-color: #589cf6;
+            color: #ddd;
+
+        }
+
+        .teacher-info {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            font-size: 1.1em;
+        }
+        .teacher-list {
+            margin-top: 10px;
+            list-style-type: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .teacher-list-item {
+            background-color: #1a73e8;
+            color: #fff;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .teacher-list-item:hover {
+            background-color: #0d47a1;
         }
     </style>
 </head>
 <body>
+    <h1>Group Schedules</h1>
 
-<div class="timetable-container">
-    <h1>Emploi du Temps</h1>
+    <h2>Group 1 Schedule</h2>
     <table>
-        <thead>
+        <tr>
+            <th>Day</th>
+            <th>8:30-10:00</th>
+            <th>10:10-11:40</th>
+            <th>11:45-13:15</th>
+            <th>13:20-14:50</th>
+            <th>15:00-16:30</th>
+        </tr>
+        {% for day, slots in dict_grp_1.items %}
             <tr>
-                <th>Jour</th>
-                <th>8:30 - 10:00</th>
-                <th>10:10 - 11:40</th>
-                <th>11:45 - 1:15</th>
-                <th>1:20 - 2:50</th>
-                <th>3:00 - 4:30</th>
+                <td>{{ day }}</td>
+                <td>{{ slots.1 }}</td>
+                <td>{{ slots.2 }}</td>
+                <td>{{ slots.3 }}</td>
+                <td>{{ slots.4 }}</td>
+                <td>{{ slots.5 }}</td>
             </tr>
-        </thead>
-        <tbody>
-            {% for day, sessions in timetable.items %}
-                <tr>
-                    <td class="day-header">{{ day }}</td>
-                    {% for session in sessions %}
-                        <td>{{ session }}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
+        {% endfor %}
     </table>
-</div>
 
+    <h2>Group 2 Schedule</h2>
+    <table>
+        <tr>
+            <th>Day</th>
+            <th>8:30-10:00</th>
+            <th>10:10-11:40</th>
+            <th>11:45-13:15</th>
+            <th>13:20-14:50</th>
+            <th>15:00-16:30</th>
+        </tr>
+        {% for day, slots in dict_grp_2.items %}
+        <tr>
+            <td>{{ day }}</td>
+            <td>{{ slots.1 }}</td>
+            <td>{{ slots.2 }}</td>
+            <td>{{ slots.3 }}</td>
+            <td>{{ slots.4 }}</td>
+            <td>{{ slots.5 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Group 3 Schedule</h2>
+    <table>
+        <tr>
+            <th>Day</th>
+            <th>8:30-10:00</th>
+            <th>10:10-11:40</th>
+            <th>11:45-13:15</th>
+            <th>13:20-14:50</th>
+            <th>15:00-16:30</th>
+        </tr>
+        {% for day, slots in dict_grp_3.items %}
+        <tr>
+            <td>{{ day }}</td>
+            <td>{{ slots.1 }}</td>
+            <td>{{ slots.2 }}</td>
+            <td>{{ slots.3 }}</td>
+            <td>{{ slots.4 }}</td>
+            <td>{{ slots.5 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="teacher-info">
+        <h2>Teachers Working Less Than 3 Days</h2>
+        <h3>Number of teachers: </h3> <span class="teacher-list-item" >{{ teachers_less_than_3_days.count }}</span>
+        <ul class="teacher-list">
+            {% for teacher in teachers_less_than_3_days.list %}
+                <li class="teacher-list-item">{{ teacher }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
 </body>
 </html>
